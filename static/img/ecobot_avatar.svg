@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <!-- Background Glow -->
+    <radialGradient id="planetGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#52b788" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#2d6a4f" stop-opacity="0"/>
+    </radialGradient>
+    
+    <!-- Body Gradient (Planet Earth / Leaf Sphere) -->
+    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#74c69d"/>
+      <stop offset="45%" stop-color="#40916c"/>
+      <stop offset="100%" stop-color="#1b4332"/>
+    </linearGradient>
+
+    <!-- Continents / Leaf Pattern -->
+    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#95d5b2"/>
+      <stop offset="100%" stop-color="#52b788"/>
+    </linearGradient>
+
+    <!-- Sprout Gradient -->
+    <linearGradient id="sproutGrad" x1="0%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#b7e4c7"/>
+      <stop offset="100%" stop-color="#40916c"/>
+    </linearGradient>
+
+    <!-- Cheeks Glow -->
+    <radialGradient id="cheekGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff9999" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#ff9999" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Ambient Glow Ring -->
+  <circle cx="80" cy="88" r="66" fill="url(#planetGlow)"/>
+
+  <!-- Satellite Orbit Ring -->
+  <ellipse cx="80" cy="94" rx="72" ry="24" fill="none" stroke="#52b788" stroke-width="2" stroke-dasharray="4,4" opacity="0.4" transform="rotate(-15 80 94)"/>
+
+  <!-- Sprout Stem on Top -->
+  <path d="M 80,48 Q 80,32 74,26" fill="none" stroke="#40916c" stroke-width="4.5" stroke-linecap="round"/>
+  
+  <!-- Left Sprout Leaf -->
+  <path d="M 74,26 C 62,26 56,12 70,8 C 76,16 78,22 74,26 Z" fill="url(#sproutGrad)" stroke="#1b4332" stroke-width="1.2"/>
+  <path d="M 71,20 Q 67,14 65,11" fill="none" stroke="#2d6a4f" stroke-width="1.2" stroke-linecap="round"/>
+
+  <!-- Right Sprout Leaf -->
+  <path d="M 77,28 C 90,26 96,14 84,10 C 78,17 76,23 77,28 Z" fill="url(#sproutGrad)" stroke="#1b4332" stroke-width="1.2"/>
+  <path d="M 79,22 Q 83,16 86,13" fill="none" stroke="#2d6a4f" stroke-width="1.2" stroke-linecap="round"/>
+
+  <!-- Mascot Body (Planet) -->
+  <circle cx="80" cy="90" r="50" fill="url(#bodyGrad)" stroke="#1b4332" stroke-width="2.5"/>
+
+  <!-- Continents/Organic Leaf Patches -->
+  <path d="M 44,72 C 50,65 62,68 64,78 C 66,86 54,96 46,92 C 40,88 38,78 44,72 Z" fill="url(#leafGrad)" opacity="0.85"/>
+  <path d="M 98,62 C 108,60 118,66 122,76 C 124,84 116,92 108,90 C 100,88 94,76 98,62 Z" fill="url(#leafGrad)" opacity="0.85"/>
+  <path d="M 72,118 C 84,116 92,124 88,132 C 82,136 68,134 66,126 C 64,120 68,118 72,118 Z" fill="url(#leafGrad)" opacity="0.75"/>
+
+  <!-- Cute Eyes -->
+  <!-- Left Eye -->
+  <ellipse cx="66" cy="86" rx="5.5" ry="8" fill="#081c15"/>
+  <circle cx="64" cy="82.5" r="2.5" fill="#ffffff"/>
+  <circle cx="68" cy="88" r="1.2" fill="#ffffff"/>
+
+  <!-- Right Eye -->
+  <ellipse cx="94" cy="86" rx="5.5" ry="8" fill="#081c15"/>
+  <circle cx="92" cy="82.5" r="2.5" fill="#ffffff"/>
+  <circle cx="96" cy="88" r="1.2" fill="#ffffff"/>
+
+  <!-- Rosy Cheeks -->
+  <circle cx="56" cy="96" r="7.5" fill="url(#cheekGlow)"/>
+  <circle cx="104" cy="96" r="7.5" fill="url(#cheekGlow)"/>
+
+  <!-- Happy Smile -->
+  <path d="M 74,96 Q 80,103 86,96" fill="none" stroke="#081c15" stroke-width="2.8" stroke-linecap="round"/>
+
+  <!-- Soft Highlight Specular on Top-Right -->
+  <ellipse cx="96" cy="58" rx="14" ry="7" fill="#ffffff" opacity="0.3" transform="rotate(-30 96 58)"/>
+
+  <!-- Floating Star/Sparkle -->
+  <polygon points="135,45 137,50 142,52 137,54 135,59 133,54 128,52 133,50" fill="#ffd166"/>
+  <polygon points="28,110 29.5,114 34,115.5 29.5,117 28,121 26.5,117 22,115.5 26.5,114" fill="#ffd166"/>
+</svg>
