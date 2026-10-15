@@ -3,686 +3,969 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Green Campus Awareness Bot 🌿 | College Sustainability & Eco Assistant</title>
-  <meta name="description" content="AI-powered Green Campus Awareness Bot promoting environmental sustainability, recycling, water saving, and eco-challenges for college students and staff.">
-  <meta name="keywords" content="Green Campus, EcoBot, Sustainability, Campus Recycling, Water Conservation, Energy Saving, College Project">
-  <link rel="icon" type="image/svg+xml" href="ecobot_avatar.svg">
+  <title>Green Campus Awareness Bot 🌿 | AI-Powered Sustainability Guide</title>
+  <meta name="description" content="AI-powered chatbot and awareness platform promoting sustainability, waste reduction, water and energy conservation, and tree plantation on college campuses.">
+  <meta name="keywords" content="Green Campus, EcoBot, College Sustainability, Environmental Awareness, Waste Management, Water Conservation, Energy Saving, Tree Plantation">
+  <meta name="theme-color" content="#1b4332">
 
-  <!-- Google Fonts: Outfit -->
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='images/ecobot-avatar.jpg') }}">
+
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Bootstrap 5 CSS -->
+  <!-- Bootstrap 5.3.3 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons 1.11.3 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-  <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="style.css">
+  <!-- Custom Styling -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
-  <!-- ==========================================================================
-       Navigation Bar
-       ========================================================================== -->
-  <nav class="navbar navbar-expand-lg sticky-top eco-navbar" id="mainNavbar">
-    <div class="container">
-      <a class="navbar-brand" href="#home">
-        <div class="brand-icon-wrapper">
-          <img src="ecobot_avatar.svg" alt="EcoBot Mascot" width="28" height="28">
-        </div>
-        <span>Green Campus Bot</span>
-      </a>
+  <!-- Navigation Bar -->
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top" id="mainNavbar">
+      <div class="container-xl">
+        <a class="navbar-brand" href="/" data-nav-target="home" id="brandLogoLink">
+          <img src="{{ url_for('static', filename='images/ecobot-avatar.jpg') }}" alt="EcoBot Avatar" class="brand-avatar">
+          <span>Green Campus <span class="text-success">EcoBot</span></span>
+        </a>
 
-      <!-- Backend AI Integration Status Badge -->
-      <div class="d-none d-md-flex align-items-center ms-3 me-auto">
-        <div class="status-badge" id="systemStatusBadge" title="System Status">
-          <span class="pulse-dot"></span>
-          <span id="systemStatusText">Connecting...</span>
+        <!-- Mobile Toggle Button -->
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar Links -->
+        <div class="collapse navbar-collapse" id="navbarContent">
+          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-1">
+            <li class="nav-item">
+              <a class="nav-link active" data-nav-target="home" id="navLinkHome" href="#home">
+                <i class="bi bi-house-door"></i> Home
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-nav-target="chatbot" id="navLinkChatbot" href="#chatbot">
+                <i class="bi bi-chat-dots-fill"></i> AI Chatbot
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-nav-target="challenges" id="navLinkChallenges" href="#challenges">
+                <i class="bi bi-award-fill"></i> Eco-Challenges
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-nav-target="tips" id="navLinkTips" href="#tips">
+                <i class="bi bi-lightbulb-fill"></i> Green Tips
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-nav-target="dashboard" id="navLinkDashboard" href="#dashboard">
+                <i class="bi bi-speedometer2"></i> Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-nav-target="about" id="navLinkAbout" href="#about">
+                <i class="bi bi-info-circle-fill"></i> About
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-nav-target="feedback" id="navLinkFeedback" href="#feedback">
+                <i class="bi bi-star-fill"></i> Feedback
+              </a>
+            </li>
+          </ul>
+
+          <!-- AI Status and Quick Chat Action -->
+          <div class="d-flex align-items-center gap-3">
+            <div class="status-badge" id="navAiStatus">
+              <span class="status-pulse"></span>
+              <span>{{ ai_status.status_label }}</span>
+            </div>
+            <button class="btn btn-eco-primary btn-sm" data-nav-target="chatbot" id="navChatBtn">
+              <i class="bi bi-chat-quote-fill"></i> Chat with EcoBot
+            </button>
+          </div>
         </div>
       </div>
+    </nav>
+  </header>
 
-      <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-        <i class="bi bi-list fs-2 text-success"></i>
-      </button>
+  <!-- Main Content Area -->
+  <main class="container-xl py-4" id="mainContentArea">
 
-      <div class="collapse navbar-collapse" id="navbarContent">
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-1">
-          <li class="nav-item">
-            <a class="nav-link active" href="#home"><i class="bi bi-house-door"></i> Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#chatbot-section"><i class="bi bi-robot"></i> EcoBot AI</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#challenges-section"><i class="bi bi-check2-circle"></i> Eco-Challenges</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#tips-section"><i class="bi bi-lightbulb"></i> Green Tips</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#dashboard-section"><i class="bi bi-speedometer2"></i> Dashboard</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#about-section"><i class="bi bi-info-circle"></i> About</a>
-          </li>
-          <li class="nav-item ms-lg-2">
-            <a class="btn btn-eco-primary btn-sm px-3" href="#feedback-section">
-              <i class="bi bi-star-fill text-warning"></i> Feedback
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-  <!-- ==========================================================================
-       Hero Section (Home)
-       ========================================================================== -->
-  <section class="hero-section" id="home">
-    <div class="container">
-      <div class="row align-items-center g-5">
-        <div class="col-lg-6">
-          <div class="hero-pill">
-            <i class="bi bi-sparkles text-success"></i> Empowering Sustainable Campuses
-          </div>
-          <h1 class="hero-title">
-            Make Your Campus <span class="highlight">Greener</span>, One Step at a Time.
-          </h1>
-          <p class="hero-desc">
-            Meet <strong>EcoBot</strong>, your smart campus environmental awareness assistant. Learn actionable tips for waste management, water & energy conservation, tree plantation, and earn badges through daily eco-challenges!
-          </p>
-
-          <div class="d-flex flex-wrap gap-3">
-            <a href="#chatbot-section" class="btn btn-eco-primary btn-lg">
-              <i class="bi bi-chat-dots-fill"></i> Chat with EcoBot
-            </a>
-            <a href="#challenges-section" class="btn btn-eco-outline btn-lg">
-              <i class="bi bi-trophy-fill text-warning"></i> Take Daily Challenge
-            </a>
-          </div>
-
-          <!-- Quick Stats Highlights -->
-          <div class="hero-quick-stats">
-            <div class="quick-stat-item">
-              <h4 id="statTipsShared">15+</h4>
-              <p>Practical Green Tips</p>
-            </div>
-            <div class="quick-stat-item">
-              <h4>8</h4>
-              <p>Active Eco-Challenges</p>
-            </div>
-            <div class="quick-stat-item">
-              <h4>100%</h4>
-              <p>Free & Student-Friendly</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-6">
-          <div class="hero-illustration-wrapper">
-            <img src="hero_illustration.svg" alt="Green Campus Illustration" class="img-fluid w-100">
-            <div class="floating-eco-card">
-              <div class="brand-icon-wrapper" style="width: 48px; height: 48px;">
-                <img src="ecobot_avatar.svg" alt="EcoBot Mascot" width="36" height="36">
+    <!-- ====================================================================
+         SECTION 1: HOME / LANDING PAGE
+         ==================================================================== -->
+    <section class="app-section active" id="section-home">
+      <!-- Hero Banner -->
+      <div class="hero-wrapper">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+              <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(255,255,255,0.15); font-size:0.85rem; font-weight:600;">
+                <i class="bi bi-globe-americas"></i> Sustainable University Initiative 2026
               </div>
-              <div>
-                <strong class="d-block text-dark small">EcoBot Assistant</strong>
-                <span class="text-success small" style="font-size: 0.75rem;"><i class="bi bi-dot"></i> Ready to answer questions</span>
+              <h1 class="hero-title">
+                Make Your Campus Greener, <br>
+                <span class="highlight-text">One Step at a Time.</span>
+              </h1>
+              <p class="hero-subtitle">
+                Empowering college students, teachers, and campus staff with intelligent AI-guided sustainability advice, daily eco-challenges, and real-time conservation impact tracking.
+              </p>
+              <div class="d-flex align-items-center gap-3 flex-wrap">
+                <button class="btn btn-eco-primary px-4 py-2" data-nav-target="chatbot" id="heroChatCtaBtn">
+                  <i class="bi bi-chat-dots-fill"></i> Chat with EcoBot
+                </button>
+                <button class="btn btn-eco-secondary px-4 py-2" data-nav-target="challenges" id="heroChallengesCtaBtn">
+                  <i class="bi bi-flag-fill"></i> Take an Eco-Challenge
+                </button>
               </div>
             </div>
+            <div class="col-lg-5 hero-image-col">
+              <img src="{{ url_for('static', filename='images/campus-hero.jpg') }}" alt="Sustainable Green Campus" class="hero-banner-img">
+              <div class="hero-float-badge">
+                <img src="{{ url_for('static', filename='images/ecobot-avatar.jpg') }}" alt="EcoBot Mascot" style="width:34px; height:34px; border-radius:50%;">
+                <div>
+                  <div class="small text-muted" style="line-height:1;">AI Eco Guide</div>
+                  <div class="text-success" style="line-height:1.2;">EcoBot is Online</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- ==========================================================================
-       AI Chatbot Section (Main Feature A & B)
-       ========================================================================== -->
-  <section class="section-padding bg-white" id="chatbot-section">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-tag"><i class="bi bi-robot"></i> Interactive AI Companion</span>
-        <h2 class="section-title">Talk to EcoBot</h2>
-        <p class="section-desc">
-          Ask questions about waste recycling, hostel energy saving, organizing campus drives, or living sustainably on college grounds.
+      <!-- Quick Impact Demonstration Counter Row -->
+      <div class="row g-3 hero-stats-row">
+        <div class="col-6 col-md-3">
+          <div class="impact-metric-card">
+            <div class="metric-icon-box green">
+              <i class="bi bi-cup-straw"></i>
+            </div>
+            <div>
+              <div class="metric-number" id="heroPlasticCount">6,598</div>
+              <div class="metric-label">Plastics Diverted</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="impact-metric-card">
+            <div class="metric-icon-box blue">
+              <i class="bi bi-droplet-half"></i>
+            </div>
+            <div>
+              <div class="metric-number" id="heroWaterCount">40,775 L</div>
+              <div class="metric-label">Water Conserved</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="impact-metric-card">
+            <div class="metric-icon-box yellow">
+              <i class="bi bi-lightning-charge-fill"></i>
+            </div>
+            <div>
+              <div class="metric-number" id="heroEnergyCount">5,101 kWh</div>
+              <div class="metric-label">Clean Energy Saved</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="impact-metric-card">
+            <div class="metric-icon-box emerald">
+              <i class="bi bi-tree-fill"></i>
+            </div>
+            <div>
+              <div class="metric-number" id="heroTreesCount">44</div>
+              <div class="metric-label">Trees Planted</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tip of the Day Widget -->
+      <div class="eco-card p-4 mb-5" style="border-left: 5px solid var(--primary-leaf);">
+        <div id="heroTipOfTheDay">
+          <div class="d-flex align-items-center gap-3">
+            <div class="tip-icon-badge flex-shrink-0" style="background:#eafaf1; color:#1b4332;">
+              <i class="bi bi-lightbulb-fill"></i>
+            </div>
+            <div>
+              <div class="text-uppercase text-success fw-bold small" style="letter-spacing:0.05em;">🌿 Eco Tip of the Day</div>
+              <h6 class="mb-1 fw-bold text-dark">Switch Off Classrooms Before Leaving</h6>
+              <p class="mb-0 text-muted small">Remember the 'Last-Out' rule: toggle off fans, projectors, and overhead lights when vacating study halls and laboratories.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Campus Sustainability Pillars -->
+      <div class="text-center mb-4">
+        <h2 class="fw-bold">Campus Sustainability Pillars</h2>
+        <p class="text-muted">Six vital areas where student and staff action makes an immediate difference.</p>
+      </div>
+
+      <div class="row g-4 mb-5">
+        <div class="col-md-6 col-lg-4">
+          <div class="pillar-card">
+            <div class="pillar-icon"><i class="bi bi-trash-fill"></i></div>
+            <h5 class="fw-bold mb-2">Zero-Waste & Segregation</h5>
+            <p class="text-muted small">Twin-bin sorting separating wet compostable food scraps from dry recyclables like paper, notebooks, and PET bottles.</p>
+            <a href="#tips" class="fw-semibold text-success small" data-nav-target="tips">Explore Waste Tips <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <div class="pillar-card">
+            <div class="pillar-icon"><i class="bi bi-droplet-half"></i></div>
+            <h5 class="fw-bold mb-2">Water Conservation</h5>
+            <p class="text-muted small">Carrying refillable flasks, stopping dripping taps promptly, and adopting mindful water habits in dorms and science labs.</p>
+            <a href="#tips" class="fw-semibold text-success small" data-nav-target="tips">Explore Water Tips <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <div class="pillar-card">
+            <div class="pillar-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+            <h5 class="fw-bold mb-2">Energy Efficiency</h5>
+            <p class="text-muted small">Unplugging phantom charger loads, setting classroom AC to 24°C, and utilizing natural sunlight during study hours.</p>
+            <a href="#tips" class="fw-semibold text-success small" data-nav-target="tips">Explore Energy Tips <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <div class="pillar-card">
+            <div class="pillar-icon"><i class="bi bi-tree-fill"></i></div>
+            <h5 class="fw-bold mb-2">Biodiversity & Trees</h5>
+            <p class="text-muted small">Planting native indigenous tree saplings, maintaining pollinator garden pockets, and nurturing dormitory desk plants.</p>
+            <a href="#tips" class="fw-semibold text-success small" data-nav-target="tips">Explore Nature Tips <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <div class="pillar-card">
+            <div class="pillar-icon"><i class="bi bi-wind"></i></div>
+            <h5 class="fw-bold mb-2">Air Quality & Health</h5>
+            <p class="text-muted small">Encouraging vehicle no-idling rules, smoke-free green zones, and indoor air-purifying plants like snake plants and spider plants.</p>
+            <a href="#tips" class="fw-semibold text-success small" data-nav-target="tips">Explore Clean Air Tips <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <div class="pillar-card">
+            <div class="pillar-icon"><i class="bi bi-bicycle"></i></div>
+            <h5 class="fw-bold mb-2">Active Mobility</h5>
+            <p class="text-muted small">Riding bicycles between hostels and lecture blocks, walking scenic campus paths, or carpooling with fellow commuters.</p>
+            <a href="#tips" class="fw-semibold text-success small" data-nav-target="tips">Explore Mobility Tips <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Call to Action Banner -->
+      <div class="eco-card p-5 text-center text-white" style="background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);">
+        <h2 class="fw-bold text-white mb-3">Have a question about campus sustainability?</h2>
+        <p class="mb-4 text-light-mint" style="max-width: 600px; margin: 0 auto; color:#d8f3dc;">
+          Ask EcoBot about recycling rules, how to start a compost bin, saving energy in dorms, or organizing a campus tree drive.
         </p>
+        <button class="btn btn-light px-4 py-2 text-success fw-bold rounded-pill" data-nav-target="chatbot" id="bannerAskEcoBotBtn">
+          <i class="bi bi-chat-quote-fill me-1"></i> Start Chatting with EcoBot
+        </button>
       </div>
+    </section>
 
+
+    <!-- ====================================================================
+         SECTION 2: AI CHATBOT (ECOBOT)
+         ==================================================================== -->
+    <section class="app-section" id="section-chatbot">
       <div class="row justify-content-center">
-        <div class="col-lg-9 col-xl-8">
-          <div class="chat-container-card">
-
+        <div class="col-lg-10">
+          <div class="chat-window-card" id="chatCard">
             <!-- Chat Header -->
             <div class="chat-header">
-              <div class="chat-header-info">
+              <div class="d-flex align-items-center gap-3">
                 <div class="chat-avatar-wrapper">
-                  <img src="ecobot_avatar.svg" alt="EcoBot Leaf Avatar">
-                  <span class="chat-avatar-status"></span>
+                  <img src="{{ url_for('static', filename='images/ecobot-avatar.jpg') }}" alt="EcoBot Avatar" class="chat-bot-avatar">
+                  <span class="chat-online-indicator"></span>
                 </div>
-                <div>
-                  <h3 class="chat-header-title">EcoBot</h3>
-                  <p class="chat-header-subtitle">
-                    <span id="aiStatusText">Environmental Awareness AI</span>
-                  </p>
+                <div class="chat-header-info">
+                  <h5 class="mb-0 fw-bold">EcoBot • Campus Green Assistant</h5>
+                  <small id="chatModelBadge"><i class="bi bi-shield-check"></i> Eco Campus Knowledge Engine</small>
                 </div>
               </div>
-
-              <div class="chat-header-actions">
-                <button type="button" class="btn-chat-action" id="btnClearChat" title="Clear Chat History">
-                  <i class="bi bi-arrow-counterclockwise"></i> Clear
+              <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-outline-light rounded-pill px-3" id="clearChatBtn" title="Clear message history">
+                  <i class="bi bi-trash3 me-1"></i> Clear Chat
                 </button>
               </div>
             </div>
 
-            <!-- Fallback Knowledge Engine Banner -->
-            <div class="knowledge-banner d-none" id="knowledgeBanner">
-              <span class="d-flex align-items-center gap-2">
-                <i class="bi bi-info-circle-fill"></i>
-                <span class="banner-text">Operating with EcoBot Campus Knowledge Engine.</span>
-              </span>
-              <a href="#about-section" class="text-success text-decoration-underline fw-semibold" style="font-size: 0.72rem;">API Info</a>
-            </div>
-
-            <!-- Chat Messages Scroll Area -->
-            <div class="chat-messages" id="chatMessages">
-              <!-- Initial Welcome Message -->
-              <div class="message-row bot-message">
-                <div class="msg-avatar" title="EcoBot">
-                  <img src="ecobot_avatar.svg" alt="EcoBot Mascot">
-                </div>
-                <div class="message-bubble">
-                  <p class="mb-2"><strong>Hello there! I'm EcoBot, your Green Campus Awareness Assistant 🌿.</strong></p>
-                  <p class="mb-2">I can help you adopt eco-friendly habits on campus, understand plastic recycling, conserve water & electricity, and guide your student green initiatives!</p>
-                  <p class="mb-0 text-muted small"><em>Click any question below or type your query in the box:</em></p>
-                  <span class="msg-time">EcoBot • Just now</span>
-                </div>
-              </div>
-
-              <!-- Typing Indicator Bubble -->
-              <div class="message-row bot-message" id="typingIndicator">
-                <div class="msg-avatar">
-                  <img src="ecobot_avatar.svg" alt="EcoBot">
-                </div>
-                <div class="typing-indicator" style="display: flex;">
-                  <span class="typing-dot"></span>
-                  <span class="typing-dot"></span>
-                  <span class="typing-dot"></span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Quick Replies Bar -->
-            <div class="quick-replies-section" id="quickRepliesContainer">
-              <!-- Rendered dynamically by chat.js -->
-            </div>
-
-            <!-- Chat Input Area -->
-            <form id="chatForm" class="chat-input-area">
-              <input 
-                type="text" 
-                id="chatInput" 
-                class="chat-input" 
-                placeholder="Ask EcoBot anything about campus sustainability..." 
-                autocomplete="off"
-                required
-              >
-              <button type="submit" class="btn-chat-send" id="btnSend" title="Send Question">
-                <i class="bi bi-send-fill"></i>
+            <!-- Quick Suggestions Horizontal Bar -->
+            <div class="chat-quick-suggestions">
+              <button class="suggestion-pill" data-query="How can I make my campus greener?">
+                <i class="bi bi-tree"></i> How can I make my campus greener?
               </button>
-            </form>
-
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ==========================================================================
-       Eco-Challenges Section (Main Feature D)
-       ========================================================================== -->
-  <section class="section-padding" id="challenges-section" style="background-color: #f3f9f5;">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-tag"><i class="bi bi-trophy-fill text-warning"></i> Gamified Sustainability</span>
-        <h2 class="section-title">Daily Campus Eco-Challenges</h2>
-        <p class="section-desc">
-          Small daily actions add up to a massive campus impact. Complete challenges, earn sustainability points, and unlock green badges!
-        </p>
-      </div>
-
-      <div class="row justify-content-center">
-        <div class="col-lg-10">
-          <div class="challenges-card">
-
-            <!-- Progress Header Box -->
-            <div class="progress-header-box">
-              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <div>
-                  <h4 class="mb-1 text-success d-flex align-items-center gap-2">
-                    <span id="ecoBadgeDisplay">Eco Seedling 🌰</span>
-                  </h4>
-                  <small class="text-muted">Rank: <strong id="ecoLevelDisplay" class="text-dark">Beginner</strong></small>
-                </div>
-                <div class="text-end">
-                  <div class="h4 mb-0 text-success fw-bold" id="totalPointsDisplay">0 XP</div>
-                  <small class="text-muted"><span id="completedChallengesCount">0</span> of <span id="totalChallengesCount">8</span> Completed</small>
-                </div>
-              </div>
-
-              <!-- Animated Progress Bar -->
-              <div class="eco-progress-bar">
-                <div class="eco-progress-fill" id="ecoProgressFill" style="width: 0%;"></div>
-              </div>
-              <div class="d-flex justify-content-between align-items-center mt-2 small text-muted">
-                <span id="ecoProgressText">0% Completed</span>
-                <span>Complete all to become Campus Green Ambassador 🏆</span>
-              </div>
+              <button class="suggestion-pill" data-query="How can I save water in college?">
+                <i class="bi bi-droplet"></i> How can I save water in college?
+              </button>
+              <button class="suggestion-pill" data-query="Where should I dispose of plastic waste?">
+                <i class="bi bi-recycle"></i> Where should I dispose of plastic waste?
+              </button>
+              <button class="suggestion-pill" data-query="What is composting?">
+                <i class="bi bi-flower1"></i> What is composting?
+              </button>
+              <button class="suggestion-pill" data-query="How can students reduce electricity consumption?">
+                <i class="bi bi-lightning-charge"></i> How can students reduce electricity consumption?
+              </button>
             </div>
 
-            <!-- Challenges Checklist Container -->
-            <div id="challengesContainer">
-              <div class="text-center py-5">
-                <div class="spinner-border text-success" role="status">
-                  <span class="visually-hidden">Loading challenges...</span>
+            <!-- Message Stream Area -->
+            <div class="chat-messages-container" id="chatMessages">
+              <!-- Welcome Bubble -->
+              <div class="chat-row bot-row">
+                <img src="{{ url_for('static', filename='images/ecobot-avatar.jpg') }}" alt="EcoBot" class="chat-bubble-avatar">
+                <div class="chat-bubble">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <strong class="text-success" style="font-size:0.85rem;">🌿 EcoBot <span class="badge bg-secondary-subtle text-secondary small ms-2"><i class="bi bi-mortarboard"></i> Eco Campus Guide</span></strong>
+                  </div>
+                  <h4 class="fw-bold mb-2">Hello there! 🌿 I'm EcoBot.</h4>
+                  <p>I am your campus environmental awareness assistant! You can ask me anything about recycling, saving water, cutting electricity consumption, composting, or participating in green campus activities.</p>
+                  <p class="mb-0"><strong>Tip:</strong> Click any of the quick suggested questions above, or type your own question below!</p>
+                  <div class="chat-time">{{ "12:00 PM" }}</div>
                 </div>
               </div>
             </div>
 
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ==========================================================================
-       Environmental Tips Section (Main Feature E)
-       ========================================================================== -->
-  <section class="section-padding bg-white" id="tips-section">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-tag"><i class="bi bi-lightbulb-fill text-warning"></i> Knowledge Base</span>
-        <h2 class="section-title">Categorized Environmental Tips</h2>
-        <p class="section-desc">
-          Browse curated, student-friendly tips on water, electricity, plastic waste, air quality, native trees, and sustainable transit.
-        </p>
-      </div>
-
-      <!-- Search & Filter Controls -->
-      <div class="row justify-content-center mb-4">
-        <div class="col-md-6 col-lg-5 mb-3">
-          <div class="input-group shadow-sm rounded-pill overflow-hidden border">
-            <span class="input-group-text bg-white border-0 ps-3">
-              <i class="bi bi-search text-muted"></i>
-            </span>
-            <input 
-              type="text" 
-              id="tipsSearchInput" 
-              class="form-control border-0 py-2" 
-              placeholder="Search tips (e.g. tap, plastic, AC, tree)..."
-            >
-          </div>
-        </div>
-      </div>
-
-      <!-- Category Filter Pills -->
-      <div class="tips-filter-bar" id="tipsFilterBar">
-        <!-- Rendered dynamically by tips.js -->
-      </div>
-
-      <div class="text-center text-muted small mb-4" id="tipsResultCount">
-        Showing all tips
-      </div>
-
-      <!-- Tips Cards Grid -->
-      <div class="row" id="tipsContainer">
-        <div class="col-12 text-center py-5">
-          <div class="spinner-border text-success" role="status">
-            <span class="visually-hidden">Loading tips...</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ==========================================================================
-       Green Campus Dashboard Section (Main Feature C)
-       ========================================================================== -->
-  <section class="section-padding" id="dashboard-section" style="background-color: #f7fbf8;">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-tag"><i class="bi bi-speedometer2"></i> Campus Impact Metrics</span>
-        <h2 class="section-title">Green Campus Dashboard</h2>
-        <p class="section-desc">
-          Visualizing the collective environmental impact of students, teachers, and staff adopting eco-friendly habits.
-        </p>
-      </div>
-
-      <!-- 4 Core Metric Cards -->
-      <div class="row g-4">
-        <!-- Metric 1: Plastic Bottles Saved -->
-        <div class="col-md-6 col-lg-3">
-          <div class="metric-card">
-            <div class="metric-header">
-              <div class="metric-icon-box plastic">
-                <i class="bi bi-cup-straw"></i>
+            <!-- Chat Footer Input -->
+            <div class="chat-footer">
+              <div class="chat-input-group">
+                <input type="text" id="chatInput" class="chat-input-control" placeholder="Ask EcoBot a question about campus sustainability..." autocomplete="off">
+                <button id="chatSendBtn" class="chat-send-btn" title="Send question">
+                  <i class="bi bi-send-fill"></i>
+                </button>
               </div>
-              <span class="badge bg-purple-subtle text-purple border small">Waste Diverted</span>
-            </div>
-            <div class="metric-value" id="statPlasticBottles">1,420</div>
-            <div class="metric-label">Plastic Bottles Saved</div>
-            <p class="metric-subtext">Single-use plastic bottles avoided by students carrying reusable flasks.</p>
-          </div>
-        </div>
-
-        <!-- Metric 2: Water Conserved -->
-        <div class="col-md-6 col-lg-3">
-          <div class="metric-card">
-            <div class="metric-header">
-              <div class="metric-icon-box water">
-                <i class="bi bi-droplet-fill"></i>
+              <div class="d-flex justify-content-between align-items-center mt-2 px-2 text-muted" style="font-size:0.75rem;">
+                <span>Press <strong>Enter</strong> to send. EcoBot gives student-friendly campus advice.</span>
+                <span><i class="bi bi-shield-lock"></i> Safe & Private</span>
               </div>
-              <span class="badge bg-primary-subtle text-primary border small">Water Saved</span>
             </div>
-            <div class="metric-value" id="statWaterSaved">5,800</div>
-            <div class="metric-label">Liters Water Saved</div>
-            <p class="metric-subtext">Conserved through faucet discipline, quick reporting, and mindful refills.</p>
-          </div>
-        </div>
-
-        <!-- Metric 3: Electricity Saved -->
-        <div class="col-md-6 col-lg-3">
-          <div class="metric-card">
-            <div class="metric-header">
-              <div class="metric-icon-box energy">
-                <i class="bi bi-lightning-charge-fill"></i>
-              </div>
-              <span class="badge bg-warning-subtle text-warning border small">Energy Saved</span>
-            </div>
-            <div class="metric-value" id="statEnergySaved">340</div>
-            <div class="metric-label">kWh Electricity Saved</div>
-            <p class="metric-subtext">Prevented by switching off vacant lecture halls, labs, and AC units.</p>
-          </div>
-        </div>
-
-        <!-- Metric 4: CO2 Reduced -->
-        <div class="col-md-6 col-lg-3">
-          <div class="metric-card">
-            <div class="metric-header">
-              <div class="metric-icon-box co2">
-                <i class="bi bi-cloud-check-fill"></i>
-              </div>
-              <span class="badge bg-success-subtle text-success border small">Emissions Cut</span>
-            </div>
-            <div class="metric-value" id="statCo2Reduced">210</div>
-            <div class="metric-label">kg CO₂ Prevented</div>
-            <p class="metric-subtext">Reduced via bicycle commutes, stair usage, and native tree planting.</p>
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- Demonstration Note Requirement -->
-      <div class="disclaimer-badge">
-        <i class="bi bi-info-circle-fill text-primary fs-5"></i>
+
+    <!-- ====================================================================
+         SECTION 3: ECO-CHALLENGES & ACTIVITY TRACKER
+         ==================================================================== -->
+    <section class="app-section" id="section-challenges">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
         <div>
-          <strong>College Project Demonstration Notice:</strong>
-          These statistics represent educational baseline simulations and dynamic student activity accumulations for demonstration purposes, not live hardware telemetry.
+          <h2 class="fw-bold mb-1">Eco-Challenges & Action Tracker</h2>
+          <p class="text-muted mb-0">Build daily sustainable habits, earn Eco-Points, and record your environmental contributions.</p>
         </div>
-      </div>
-
-      <!-- Campus Activity Log -->
-      <div class="row mt-5">
-        <div class="col-lg-12">
-          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-              <h5 class="mb-0 text-success fw-bold"><i class="bi bi-activity"></i> Recent Campus Eco-Activity Feed</h5>
-              <span class="badge bg-success-subtle text-success small" id="statActivities">3 Recorded</span>
-            </div>
-            <div id="activitiesTimeline">
-              <!-- Dynamically populated by main.js -->
+        <div class="d-flex align-items-center gap-3">
+          <div class="stat-card py-2 px-3">
+            <i class="bi bi-trophy-fill text-warning fs-3"></i>
+            <div>
+              <div class="fw-bold fs-5 text-dark" id="userEcoScore">0</div>
+              <div class="small text-muted">My Eco-Points</div>
             </div>
           </div>
         </div>
       </div>
 
-    </div>
-  </section>
+      <!-- Overall Progress Card -->
+      <div class="eco-card p-4 mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <h6 class="fw-bold text-forest mb-0">
+            <i class="bi bi-check2-circle text-success me-1"></i> Challenge Completion Progress
+          </h6>
+          <span class="text-muted small">
+            Completed <strong id="completedChallengesCount" class="text-success">0</strong> of <strong id="totalChallengesCount">8</strong> Challenges
+          </span>
+        </div>
+        <div class="progress" style="height: 14px; border-radius: 999px; background:#e2ece9;">
+          <div id="challengesProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%; font-size:0.72rem; font-weight:700;">
+            0%
+          </div>
+        </div>
+      </div>
 
-  <!-- ==========================================================================
-       About the Project Section (Page 6)
-       ========================================================================== -->
-  <section class="section-padding bg-white" id="about-section">
-    <div class="container">
-      <div class="row align-items-center g-5">
-        <div class="col-lg-6">
-          <span class="section-tag"><i class="bi bi-info-circle-fill"></i> Project Overview</span>
-          <h2 class="section-title">About Green Campus Bot</h2>
-          <p class="lead text-secondary">
-            A comprehensive web application designed to educate college students, faculty, and administrative staff on sustainable campus living.
-          </p>
-          <p class="text-muted">
-            Higher education institutions produce significant waste, consume high volumes of water, and utilize substantial electrical energy daily. <strong>Green Campus Awareness Bot</strong> bridges the gap between awareness and concrete action by combining responsive AI guidance with habit-forming gamification.
-          </p>
-
-          <div class="row g-3 mt-2">
-            <div class="col-sm-6">
-              <div class="p-3 bg-light rounded-3 border">
-                <h6 class="text-success fw-bold mb-1"><i class="bi bi-globe-americas"></i> SDG Alignment</h6>
-                <p class="small text-muted mb-0">Contributes to UN Sustainable Development Goals 12 (Consumption), 13 (Climate Action), and 15 (Life on Land).</p>
-              </div>
+      <div class="row g-4">
+        <!-- Challenges List (Left Column) -->
+        <div class="col-lg-7">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex gap-2 flex-wrap">
+              <button class="btn-pill-filter challenge-filter-pill active" data-frequency="all">All Challenges</button>
+              <button class="btn-pill-filter challenge-filter-pill" data-frequency="Daily">Daily Habits</button>
+              <button class="btn-pill-filter challenge-filter-pill" data-frequency="Weekly">Weekly Goals</button>
+              <button class="btn-pill-filter challenge-filter-pill" data-frequency="Campus Drive">Campus Drives</button>
             </div>
-            <div class="col-sm-6">
-              <div class="p-3 bg-light rounded-3 border">
-                <h6 class="text-success fw-bold mb-1"><i class="bi bi-shield-lock-fill"></i> Secure AI Architecture</h6>
-                <p class="small text-muted mb-0">OpenAI API key protected server-side with local knowledge engine fallback for zero downtime.</p>
-              </div>
+          </div>
+
+          <!-- Dynamic Challenges Container -->
+          <div id="challengesList">
+            <div class="text-center py-5">
+              <div class="spinner-border text-success" role="status"></div>
+              <p class="mt-2 text-muted">Loading campus challenges...</p>
             </div>
           </div>
         </div>
 
-        <div class="col-lg-6">
-          <div class="card border-0 shadow-sm rounded-4 p-4 bg-light">
-            <h5 class="fw-bold text-success mb-3"><i class="bi bi-mortarboard-fill"></i> Campus Roles & Responsibility</h5>
-            
-            <div class="d-flex align-items-start gap-3 mb-3">
-              <div class="brand-icon-wrapper" style="width: 40px; height: 40px; flex-shrink: 0;">
-                <i class="bi bi-backpack-fill text-success fs-5"></i>
+        <!-- Log Activity Form (Right Column) -->
+        <div class="col-lg-5">
+          <div class="eco-card p-4 sticky-top" style="top: 85px;">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <div class="metric-icon-box green" style="width:40px; height:40px; font-size:1.2rem;">
+                <i class="bi bi-pencil-square"></i>
               </div>
-              <div>
-                <strong class="d-block text-dark">College Students</strong>
-                <small class="text-muted">Carry reusable water flasks, avoid canteen disposable plastics, segregate hostel waste, and participate in campus plantation drives.</small>
-              </div>
+              <h5 class="fw-bold mb-0">Log Campus Eco-Activity</h5>
             </div>
+            <p class="text-muted small mb-3">
+              Did you plant a tree, join a cleanup drive, or segregate waste? Record your contribution in the university database!
+            </p>
 
-            <div class="d-flex align-items-start gap-3 mb-3">
-              <div class="brand-icon-wrapper" style="width: 40px; height: 40px; flex-shrink: 0;">
-                <i class="bi bi-person-video3 text-success fs-5"></i>
-              </div>
-              <div>
-                <strong class="d-block text-dark">Faculty & Professors</strong>
-                <small class="text-muted">Promote digital assignment submissions, turn off lecture hall projectors after classes, and guide environmental research clubs.</small>
-              </div>
-            </div>
-
-            <div class="d-flex align-items-start gap-3">
-              <div class="brand-icon-wrapper" style="width: 40px; height: 40px; flex-shrink: 0;">
-                <i class="bi bi-tools text-success fs-5"></i>
-              </div>
-              <div>
-                <strong class="d-block text-dark">Campus Administration & Staff</strong>
-                <small class="text-muted">Maintain washroom plumbing fixtures to stop drips, set AC thermostats to 24°C, and maintain campus compost bins.</small>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ==========================================================================
-       Feedback System Section (Main Feature F)
-       ========================================================================== -->
-  <section class="section-padding" id="feedback-section" style="background-color: #f3f8f5;">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-tag"><i class="bi bi-chat-heart-fill text-danger"></i> Community Voice</span>
-        <h2 class="section-title">Rate EcoBot & Suggest Ideas</h2>
-        <p class="section-desc">
-          Have an idea for campus greening or feedback on EcoBot's responses? We'd love to hear from students and faculty!
-        </p>
-      </div>
-
-      <div class="row g-4 justify-content-center">
-        <!-- Feedback Submission Form -->
-        <div class="col-lg-6">
-          <div class="feedback-card h-100">
-            <h4 class="fw-bold text-success mb-3">Share Your Experience</h4>
-
-            <form id="feedbackForm">
+            <form id="activityLogForm">
               <div class="mb-3">
-                <label class="form-label small fw-semibold text-muted">Your Rating for EcoBot</label>
-                <div class="star-rating-box" id="starRatingBox">
-                  <i class="bi bi-star-fill selected" data-value="1"></i>
-                  <i class="bi bi-star-fill selected" data-value="2"></i>
-                  <i class="bi bi-star-fill selected" data-value="3"></i>
-                  <i class="bi bi-star-fill selected" data-value="4"></i>
-                  <i class="bi bi-star-fill selected" data-value="5"></i>
-                </div>
-                <input type="hidden" id="feedbackRatingInput" value="5">
+                <label for="activityStudentName" class="form-label small fw-bold">Your Name / Club</label>
+                <input type="text" class="form-control form-control-eco" id="activityStudentName" placeholder="e.g. Aryan Sen or Green Club" required>
               </div>
 
-              <div class="row g-3 mb-3">
-                <div class="col-sm-6">
-                  <label for="feedbackName" class="form-label small fw-semibold text-muted">Your Name (Optional)</label>
-                  <input type="text" class="form-control rounded-3" id="feedbackName" placeholder="e.g. Maya Patel">
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label for="activityRole" class="form-label small fw-bold">Campus Role</label>
+                  <select class="form-select form-control-eco" id="activityRole">
+                    <option value="Student">Student</option>
+                    <option value="Faculty">Faculty</option>
+                    <option value="Staff">Staff</option>
+                    <option value="Visitor">Visitor</option>
+                  </select>
                 </div>
-                <div class="col-sm-6">
-                  <label for="feedbackRole" class="form-label small fw-semibold text-muted">Campus Role</label>
-                  <select class="form-select rounded-3" id="feedbackRole">
-                    <option value="Student" selected>Student</option>
-                    <option value="Faculty / Teacher">Faculty / Teacher</option>
-                    <option value="Campus Staff">Campus Staff</option>
-                    <option value="Alumni / Visitor">Alumni / Visitor</option>
+                <div class="col-6">
+                  <label for="activityType" class="form-label small fw-bold">Activity Type</label>
+                  <select class="form-select form-control-eco" id="activityType" required>
+                    <option value="Reusable Bottle">Reusable Bottle</option>
+                    <option value="Avoid Single-Use Plastic">Avoid Single-Use Plastic</option>
+                    <option value="Energy Conservation">Energy Conservation</option>
+                    <option value="Waste Segregation">Waste Segregation</option>
+                    <option value="Campus Cleanliness Drive">Cleanliness Drive</option>
+                    <option value="Plant and care for a tree">Tree Plantation</option>
+                    <option value="Walking/Cycling Commute">Walking/Cycling</option>
+                    <option value="Other Eco Action">Other Eco Action</option>
                   </select>
                 </div>
               </div>
 
               <div class="mb-3">
-                <label for="feedbackCategory" class="form-label small fw-semibold text-muted">Feedback Category</label>
-                <select class="form-select rounded-3" id="feedbackCategory">
-                  <option value="Chatbot Experience" selected>Chatbot Experience & Accuracy</option>
-                  <option value="Campus Eco-Challenge Idea">New Campus Eco-Challenge Idea</option>
-                  <option value="Waste & Recycling Suggestion">Waste & Recycling Suggestion</option>
-                  <option value="General Campus Usability">General Usability</option>
-                </select>
+                <label for="activityDescription" class="form-label small fw-bold">Activity Details</label>
+                <textarea class="form-control form-control-eco" id="activityDescription" rows="2" placeholder="Describe what you did on campus..." required></textarea>
               </div>
 
-              <div class="mb-4">
-                <label for="feedbackComment" class="form-label small fw-semibold text-muted">Comments & Suggestions *</label>
-                <textarea class="form-control rounded-3" id="feedbackComment" rows="3" placeholder="Share your suggestions to improve campus environmental awareness..." required></textarea>
+              <div class="mb-3">
+                <label for="activityImpact" class="form-label small fw-bold">Estimated Impact (Optional)</label>
+                <input type="text" class="form-control form-control-eco" id="activityImpact" placeholder="e.g. 1 Sapling planted, 5 bottles avoided">
               </div>
 
-              <button type="submit" class="btn btn-eco-primary w-100 py-2 justify-content-center" id="btnSubmitFeedback">
-                <i class="bi bi-send-fill me-1"></i> Submit Feedback
+              <button type="submit" class="btn btn-eco-primary w-100 justify-content-center" id="activitySubmitBtn">
+                <i class="bi bi-send me-1"></i> Log Eco-Activity
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ====================================================================
+         SECTION 4: GREEN TIPS
+         ==================================================================== -->
+    <section class="app-section" id="section-tips">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+        <div>
+          <h2 class="fw-bold mb-1">Campus Environmental Tips</h2>
+          <p class="text-muted mb-0">Actionable advice categorized by water, energy, waste, air quality, biodiversity, and clean mobility.</p>
+        </div>
+        <div>
+          <span class="badge bg-success-subtle text-success fs-6 py-2 px-3 rounded-pill" id="tipsCountBadge">Loading...</span>
+        </div>
+      </div>
+
+      <!-- Search & Category Filters -->
+      <div class="eco-card p-3 mb-4">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-5">
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+              <input type="text" id="tipsSearchInput" class="form-control form-control-eco border-start-0" placeholder="Search tips (e.g. water, lights, plastic, compost)...">
+            </div>
+          </div>
+          <div class="col-md-7">
+            <div class="d-flex gap-2 overflow-x-auto pb-1">
+              <button class="btn-pill-filter tip-category-pill active" data-category="all">All Tips</button>
+              <button class="btn-pill-filter tip-category-pill" data-category="Water Conservation"><i class="bi bi-droplet-half me-1"></i>Water</button>
+              <button class="btn-pill-filter tip-category-pill" data-category="Energy Conservation"><i class="bi bi-lightning-charge me-1"></i>Energy</button>
+              <button class="btn-pill-filter tip-category-pill" data-category="Waste Management"><i class="bi bi-recycle me-1"></i>Waste</button>
+              <button class="btn-pill-filter tip-category-pill" data-category="Air Quality"><i class="bi bi-wind me-1"></i>Air Quality</button>
+              <button class="btn-pill-filter tip-category-pill" data-category="Biodiversity & Trees"><i class="bi bi-tree me-1"></i>Biodiversity</button>
+              <button class="btn-pill-filter tip-category-pill" data-category="Sustainable Transportation"><i class="bi bi-bicycle me-1"></i>Mobility</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tips Grid Container -->
+      <div class="row" id="tipsGridContainer">
+        <div class="col-12 text-center py-5">
+          <div class="spinner-border text-success" role="status"></div>
+          <p class="mt-2 text-muted">Loading environmental tips...</p>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ====================================================================
+         SECTION 5: CAMPUS DASHBOARD
+         ==================================================================== -->
+    <section class="app-section" id="section-dashboard">
+      <div class="mb-4">
+        <h2 class="fw-bold mb-1">Campus Sustainability Dashboard</h2>
+        <p class="text-muted mb-0">Overview of environmental awareness metrics, logged campus actions, and resource savings estimates.</p>
+      </div>
+
+      <!-- Disclaimer Banner required by project prompt -->
+      <div class="disclaimer-banner">
+        <i class="bi bi-info-circle-fill fs-5 flex-shrink-0"></i>
+        <div>
+          <strong>Awareness Model Notice:</strong> Sample statistics and resource savings displayed below are demonstration models designed to illustrate campus collective impact, not verified campus meter measurements.
+        </div>
+      </div>
+
+      <!-- Top Dashboard Metric Cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#e0f2fe; color:#0284c7;">
+              <i class="bi bi-lightbulb"></i>
+            </div>
+            <div>
+              <div class="stat-value" id="dashTotalTips">15</div>
+              <div class="stat-title">Green Tips Shared</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7; color:#15803d;">
+              <i class="bi bi-patch-check"></i>
+            </div>
+            <div>
+              <div class="stat-value" id="dashTotalActivities">5</div>
+              <div class="stat-title">Activities Recorded</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#fef3c7; color:#b45309;">
+              <i class="bi bi-award"></i>
+            </div>
+            <div>
+              <div class="stat-value" id="dashCompletedChallenges">3 / 8</div>
+              <div class="stat-title">Challenges Done</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#ede9fe; color:#7c3aed;">
+              <i class="bi bi-tree"></i>
+            </div>
+            <div>
+              <div class="stat-value" id="dashTreesPlanted">44</div>
+              <div class="stat-title">Trees / Plants Nurtured</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resource Savings Estimates Row -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#fee2e2; color:#dc2626;">
+              <i class="bi bi-cup-straw"></i>
+            </div>
+            <div>
+              <div class="stat-value" id="dashPlasticSaved">6,598</div>
+              <div class="stat-title">Plastic Bottles Diverted</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#dbeafe; color:#2563eb;">
+              <i class="bi bi-droplet-half"></i>
+            </div>
+            <div>
+              <div class="stat-value" id="dashWaterSaved">40,775 L</div>
+              <div class="stat-title">Clean Water Saved</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#fef9c3; color:#ca8a04;">
+              <i class="bi bi-lightning-charge"></i>
+            </div>
+            <div>
+              <div class="stat-value" id="dashEnergySaved">5,101 kWh</div>
+              <div class="stat-title">Electricity Conserved</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Charts -->
+      <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+          <div class="chart-container-card">
+            <h5 class="fw-bold mb-1">Campus Activity Breakdown</h5>
+            <p class="text-muted small mb-3">Distribution of green activities logged across campus categories.</p>
+            <div style="height: 280px; position:relative;">
+              <canvas id="activityBreakdownChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="chart-container-card">
+            <h5 class="fw-bold mb-1">Resource Conservation Estimates</h5>
+            <p class="text-muted small mb-3">Modelled ecological benefits achieved through collective student challenges.</p>
+            <div style="height: 280px; position:relative;">
+              <canvas id="resourceSavingsChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activities Feed -->
+      <div class="eco-card p-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="fw-bold mb-0"><i class="bi bi-clock-history text-success me-2"></i>Recent Campus Eco-Activities</h5>
+          <button class="btn btn-sm btn-outline-success rounded-pill" data-nav-target="challenges">
+            <i class="bi bi-plus-circle me-1"></i> Log New Activity
+          </button>
+        </div>
+        <div class="activity-feed-list" id="recentActivitiesContainer">
+          <div class="text-center py-4">
+            <div class="spinner-border text-success" role="status"></div>
+            <p class="mt-2 text-muted">Loading activities...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ====================================================================
+         SECTION 6: ABOUT THE PROJECT
+         ==================================================================== -->
+    <section class="app-section" id="section-about">
+      <div class="row g-4 align-items-center mb-5">
+        <div class="col-lg-6">
+          <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background:#eafaf1; color:#1b4332; font-weight:700; font-size:0.85rem;">
+            <i class="bi bi-shield-check"></i> Project Mission
+          </div>
+          <h2 class="fw-bold mb-3">About Green Campus Awareness Bot</h2>
+          <p class="text-muted leading-relaxed">
+            The <strong>Green Campus Awareness Bot</strong> (EcoBot) is a modern, student-centric web platform engineered to promote sustainable campus culture, climate awareness, and everyday ecological responsibility among students, teachers, and university staff.
+          </p>
+          <p class="text-muted leading-relaxed">
+            By combining an interactive AI chatbot with gamified challenges, practical environmental tips, and a campus impact dashboard, the project bridges the gap between environmental education and real campus action.
+          </p>
+          <div class="d-flex gap-3 mt-4">
+            <button class="btn btn-eco-primary" data-nav-target="chatbot">
+              <i class="bi bi-chat-dots-fill"></i> Chat with EcoBot
+            </button>
+            <button class="btn btn-eco-secondary" data-nav-target="challenges">
+              <i class="bi bi-award"></i> View Challenges
+            </button>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <img src="{{ url_for('static', filename='images/campus-hero.jpg') }}" alt="Sustainable Campus" class="img-fluid rounded-4 shadow-sm" style="border: 2px solid var(--border-subtle);">
+        </div>
+      </div>
+
+      <!-- How EcoBot Works & Architecture -->
+      <div class="row g-4 mb-5">
+        <div class="col-md-4">
+          <div class="eco-card p-4 h-100">
+            <div class="metric-icon-box green mb-3">
+              <i class="bi bi-robot"></i>
+            </div>
+            <h5 class="fw-bold mb-2">AI-Powered EcoBot</h5>
+            <p class="text-muted small">
+              Integrates OpenAI's latest conversational models with a strict environmental system prompt ensuring accurate, student-friendly, and non-hallucinatory guidance. Includes an extensive offline campus knowledge base fallback.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="eco-card p-4 h-100">
+            <div class="metric-icon-box blue mb-3">
+              <i class="bi bi-database-check"></i>
+            </div>
+            <h5 class="fw-bold mb-2">SQLite Data Persistence</h5>
+            <p class="text-muted small">
+              Lightweight, zero-configuration local SQLite database storing challenge progress, student activity submissions, categorized tips, and community suggestions securely.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="eco-card p-4 h-100">
+            <div class="metric-icon-box emerald mb-3">
+              <i class="bi bi-shield-lock-fill"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Security-First Architecture</h5>
+            <p class="text-muted small">
+              API credentials are kept strictly server-side using environment variables (<kbd>.env</kbd>). No secrets or sensitive personal identifiable information (PII) are exposed to client JavaScript.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 Golden Rules of a Green Campus -->
+      <div class="eco-card p-4">
+        <h4 class="fw-bold mb-3"><i class="bi bi-stars text-success me-2"></i>The 5 Golden Rules of a Green Campus</h4>
+        <div class="row g-3">
+          <div class="col-md-6 col-lg-4">
+            <div class="p-3 rounded-3" style="background:#f8faf8; border:1px solid #e2ece9;">
+              <strong class="text-forest d-block mb-1">1. Refuse Before Recycling</strong>
+              <small class="text-muted">Say no to disposable straws, promotional handouts, and single-use plastic water bottles.</small>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4">
+            <div class="p-3 rounded-3" style="background:#f8faf8; border:1px solid #e2ece9;">
+              <strong class="text-forest d-block mb-1">2. Keep Dry Recyclables Clean</strong>
+              <small class="text-muted">Never toss leftover food or liquids into paper and plastic bins; contamination ruins recycling.</small>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4">
+            <div class="p-3 rounded-3" style="background:#f8faf8; border:1px solid #e2ece9;">
+              <strong class="text-forest d-block mb-1">3. The Last-Out Switch Off</strong>
+              <small class="text-muted">Always switch off overhead fans, lights, and projectors when leaving lecture halls.</small>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4">
+            <div class="p-3 rounded-3" style="background:#f8faf8; border:1px solid #e2ece9;">
+              <strong class="text-forest d-block mb-1">4. Every Drop Counts</strong>
+              <small class="text-muted">Report dripping faucets to hostel wardens immediately; a single drip wastes 30 liters daily.</small>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4">
+            <div class="p-3 rounded-3" style="background:#f8faf8; border:1px solid #e2ece9;">
+              <strong class="text-forest d-block mb-1">5. Pedal & Walk Active</strong>
+              <small class="text-muted">Biking and walking across campus cuts carbon emissions to absolute zero while keeping you fit.</small>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4">
+            <div class="p-3 rounded-3" style="background:#f8faf8; border:1px solid #e2ece9;">
+              <strong class="text-forest d-block mb-1">6. Plant for the Future</strong>
+              <small class="text-muted">Adopt and water a native sapling on campus grounds or nurture a dorm desk plant.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ====================================================================
+         SECTION 7: FEEDBACK SYSTEM
+         ==================================================================== -->
+    <section class="app-section" id="section-feedback">
+      <div class="mb-4">
+        <h2 class="fw-bold mb-1">Campus Feedback & Suggestions</h2>
+        <p class="text-muted mb-0">Rate your experience with EcoBot and share suggestions to improve campus environmental initiatives.</p>
+      </div>
+
+      <div class="row g-4">
+        <!-- Feedback Form (Left Column) -->
+        <div class="col-lg-5">
+          <div class="eco-card p-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-pencil-fill text-success me-2"></i>Share Your Thoughts</h5>
+            <form id="feedbackForm">
+              <!-- Star Rating Selector -->
+              <label class="form-label small fw-bold">Rate Your Experience with EcoBot</label>
+              <div class="star-rating-box" id="starRatingBox">
+                <span class="star active" data-value="1">★</span>
+                <span class="star active" data-value="2">★</span>
+                <span class="star active" data-value="3">★</span>
+                <span class="star active" data-value="4">★</span>
+                <span class="star active" data-value="5">★</span>
+              </div>
+              <div class="small text-success fw-bold mb-3" id="selectedRatingText">Excellent! 🌿 ⭐⭐⭐⭐⭐</div>
+
+              <div class="mb-3">
+                <label for="feedbackName" class="form-label small fw-bold">Your Name</label>
+                <input type="text" class="form-control form-control-eco" id="feedbackName" placeholder="e.g. Maya Sharma">
+              </div>
+
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label for="feedbackRole" class="form-label small fw-bold">Campus Role</label>
+                  <select class="form-select form-control-eco" id="feedbackRole">
+                    <option value="Student">Student</option>
+                    <option value="Faculty">Faculty</option>
+                    <option value="Campus Staff">Campus Staff</option>
+                    <option value="Visitor">Visitor</option>
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label for="feedbackCategory" class="form-label small fw-bold">Category</label>
+                  <select class="form-select form-control-eco" id="feedbackCategory">
+                    <option value="Chatbot Accuracy">Chatbot Accuracy</option>
+                    <option value="Campus Ideas">Campus Ideas</option>
+                    <option value="UI Experience">UI Experience</option>
+                    <option value="Challenge Suggestion">New Challenge Idea</option>
+                    <option value="General Suggestion">General</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="feedbackMessage" class="form-label small fw-bold">Suggestion or Comments</label>
+                <textarea class="form-control form-control-eco" id="feedbackMessage" rows="3" placeholder="How can we make our campus even greener? What should EcoBot learn next?" required></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-eco-primary w-100 justify-content-center" id="feedbackSubmitBtn">
+                <i class="bi bi-send me-1"></i> Submit Feedback
               </button>
             </form>
           </div>
         </div>
 
-        <!-- Recent Testimonials List -->
-        <div class="col-lg-6">
-          <div class="feedback-card h-100">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-              <h4 class="fw-bold text-success mb-0">Campus Community Reviews</h4>
+        <!-- Community Reviews & Average Rating (Right Column) -->
+        <div class="col-lg-7">
+          <div class="eco-card p-4 mb-4">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                <h5 class="fw-bold mb-1">Community Rating</h5>
+                <p class="text-muted small mb-0" id="feedbackTotalCount">Calculating reviews...</p>
+              </div>
               <div class="text-end">
-                <div class="h5 mb-0 text-warning fw-bold" id="averageRatingText">5.0 / 5.0</div>
-                <small class="text-muted" id="totalReviewsText">Campus Ratings</small>
+                <div class="display-5 fw-bold text-success font-outfit" id="feedbackAvgScore">4.8</div>
+                <div class="text-warning fs-5">★★★★★</div>
               </div>
             </div>
+          </div>
 
-            <div id="testimonialsContainer" style="max-height: 440px; overflow-y: auto; padding-right: 4px;">
-              <!-- Dynamically populated by feedback.js -->
+          <!-- Reviews List -->
+          <h6 class="fw-bold text-forest mb-3"><i class="bi bi-chat-heart text-success me-2"></i>Recent Campus Reviews & Ideas</h6>
+          <div id="feedbackReviewsList">
+            <div class="text-center py-4">
+              <div class="spinner-border text-success" role="status"></div>
+              <p class="mt-2 text-muted">Loading reviews...</p>
             </div>
           </div>
         </div>
       </div>
+    </section>
+
+  </main>
+
+
+  <!-- Floating Quick Chat Action Button (Always Accessible) -->
+  <a href="#chatbot" class="floating-ecobot-btn" data-nav-target="chatbot" id="floatingChatBtn" title="Chat with EcoBot">
+    <img src="{{ url_for('static', filename='images/ecobot-avatar.jpg') }}" alt="EcoBot Mascot">
+    <span>Chat with EcoBot</span>
+  </a>
+
+
+  <!-- Toast Notification Container -->
+  <div id="ecoToast" class="eco-toast">
+    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+    <div>
+      <strong>Green Campus Bot</strong>
+      <div class="small text-muted">Action successful!</div>
     </div>
-  </section>
+  </div>
 
-  <!-- ==========================================================================
-       Footer
-       ========================================================================== -->
-  <footer class="eco-footer">
-    <div class="container">
-      <div class="row g-4">
-        <div class="col-lg-4 col-md-6">
+
+  <!-- Modern Environmental Footer -->
+  <footer class="footer-custom">
+    <div class="container-xl">
+      <div class="row g-4 mb-4">
+        <div class="col-lg-5">
           <div class="d-flex align-items-center gap-2 mb-3">
-            <div class="brand-icon-wrapper" style="width: 38px; height: 38px;">
-              <img src="ecobot_avatar.svg" alt="EcoBot Mascot" width="28" height="28">
+            <img src="{{ url_for('static', filename='images/ecobot-avatar.jpg') }}" alt="EcoBot Mascot" style="width:36px; height:36px; border-radius:50%; border:2px solid #52b788;">
+            <h5 class="brand-font mb-0 text-white">Green Campus Awareness Bot</h5>
+          </div>
+          <p class="text-muted small" style="color: #a3c9b2 !important; max-width: 420px;">
+            A collegiate awareness platform fostering eco-friendly student habits, waste segregation, water and energy conservation, and tree plantation across university campuses.
+          </p>
+          <div class="badge bg-success-subtle text-success py-2 px-3 rounded-pill">
+            <i class="bi bi-leaf-fill me-1"></i> For a cleaner, greener tomorrow
+          </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+          <h5>Quick Navigation</h5>
+          <ul class="list-unstyled small d-flex flex-column gap-2">
+            <li><a href="#home" data-nav-target="home"><i class="bi bi-chevron-right me-1"></i> Home</a></li>
+            <li><a href="#chatbot" data-nav-target="chatbot"><i class="bi bi-chevron-right me-1"></i> AI EcoBot Chat</a></li>
+            <li><a href="#challenges" data-nav-target="challenges"><i class="bi bi-chevron-right me-1"></i> Eco-Challenges</a></li>
+            <li><a href="#tips" data-nav-target="tips"><i class="bi bi-chevron-right me-1"></i> Green Campus Tips</a></li>
+            <li><a href="#dashboard" data-nav-target="dashboard"><i class="bi bi-chevron-right me-1"></i> Sustainability Dashboard</a></li>
+          </ul>
+        </div>
+
+        <div class="col-6 col-lg-4">
+          <h5>EcoBot Campus Guidance</h5>
+          <p class="small" style="color:#a3c9b2;">
+            EcoBot adheres to official campus sustainability principles: helping students adopt sustainable habits without inventing campus-specific facilities.
+          </p>
+          <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+            <div class="small fw-bold text-white mb-1"><i class="bi bi-lightbulb-fill text-warning me-1"></i> Campus Green Fact</div>
+            <div class="small" style="color: #c0decb;">
+              Carrying a reusable water bottle avoids over 150 single-use plastic bottles each academic year!
             </div>
-            <h5 class="mb-0 fw-bold">Green Campus Bot</h5>
-          </div>
-          <p class="text-light small pe-lg-4">
-            An intelligent environmental awareness web platform fostering climate literacy, waste reduction, and sustainable campus stewardship.
-          </p>
-          <div class="d-flex gap-2">
-            <span class="badge bg-success-subtle text-success border">Python Flask</span>
-            <span class="badge bg-success-subtle text-success border">SQLite</span>
-            <span class="badge bg-success-subtle text-success border">OpenAI API</span>
-          </div>
-        </div>
-
-        <div class="col-lg-2 col-md-6">
-          <h5>Navigation</h5>
-          <a href="#home" class="footer-link">Home</a>
-          <a href="#chatbot-section" class="footer-link">EcoBot AI</a>
-          <a href="#challenges-section" class="footer-link">Eco-Challenges</a>
-          <a href="#tips-section" class="footer-link">Green Tips</a>
-          <a href="#dashboard-section" class="footer-link">Dashboard</a>
-        </div>
-
-        <div class="col-lg-3 col-md-6">
-          <h5>Core Themes</h5>
-          <span class="footer-link">Waste Segregation & Blue Bins</span>
-          <span class="footer-link">Water Conservation in Hostels</span>
-          <span class="footer-link">Classroom Energy Efficiency</span>
-          <span class="footer-link">Native Campus Tree Planting</span>
-          <span class="footer-link">Single-Use Plastic Elimination</span>
-        </div>
-
-        <div class="col-lg-3 col-md-6">
-          <h5>Campus Initiative</h5>
-          <p class="text-light small">
-            Designed for college students, academic departments, environmental committees, and estate management teams.
-          </p>
-          <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);">
-            <div class="small text-light"><strong>Campus Motto:</strong> "Think Globally, Act Locally on Campus." 🌿</div>
           </div>
         </div>
       </div>
 
-      <div class="footer-bottom">
-        <div>&copy; 2026 Green Campus Awareness Bot. Built with Python, Flask, SQLite, and OpenAI.</div>
-        <div>All sample metrics are simulations for academic awareness.</div>
+      <div class="border-top pt-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2" style="border-color: rgba(255, 255, 255, 0.1) !important;">
+        <div class="small" style="color: #8bbfa1;">
+          © 2026 Green Campus Awareness Initiative. Designed for college students and staff.
+        </div>
+        <div class="small" style="color: #8bbfa1;">
+          Powered by Python Flask &bull; Bootstrap 5 &bull; OpenAI API
+        </div>
       </div>
     </div>
   </footer>
 
-  <!-- Toast Notification Container -->
-  <div class="toast-container" id="toastContainer"></div>
-
-  <!-- Bootstrap 5 JS Bundle -->
+  <!-- Bootstrap 5.3.3 JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Chart.js 4.4.1 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-  <!-- Application Scripts -->
-  <script src="chat.js"></script>
-  <script src="challenges.js"></script>
-  <script src="tips.js"></script>
-  <script src="feedback.js"></script>
-  <script src="main.js"></script>
-
+  <!-- Application Modules -->
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/challenges.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/tips.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feedback.js') }}"></script>
 </body>
 </html>

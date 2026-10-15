@@ -1,26 +1,27 @@
-# Environment variables & secrets
+# Environment Variables
 .env
 .env.local
 .env.*.local
 
-# Python cache & virtual environments
-__pycache__/
-*.py[cod]
-*$py.class
-venv/
-env/
-.venv/
-build/
-dist/
-*.egg-info/
-
-# SQLite Database local files
+# SQLite Database
 *.db
 *.sqlite3
 
-# IDE & OS temporary files
+# Python Bytecode and Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Virtual Environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDE and OS
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
-*.log

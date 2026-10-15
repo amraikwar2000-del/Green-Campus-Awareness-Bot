@@ -1,322 +1,293 @@
-from flask import Flask, abort, render_template, request, jsonify, send_from_directory, session
-import uuid
-import datetime
-from config import Config
-from database import get_db_connection, init_db
-from ai_service import generate_chat_response, DEFAULT_SUGGESTED_QUESTIONS
+"""
+Green Campus Awareness Bot - Flask Application
+Full-stack web application providing an AI-powered environmental assistant,
+interactive eco-challenges, categorized green tips, campus activity logging,
+real-time impact dashboard, and community feedback.
+"""
+
+import os
+import sys
+
+# Ensure UTF-8 output encoding on Windows consoles
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8')
+
+from flask import Flask, render_template, request, jsonify
+from dotenv import load_dotenv
+
+import database
+import ai_service
+
+# Load environment configuration
+load_dotenv()
 
 app = Flask(__name__)
-app.config.from_object(Config)
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "green_campus_secret_key_2026")
+app.config["JSON_SORT_KEYS"] = False
 
-# Initialize database tables and seed content on startup
-with app.app_context():
-    init_db()
+# Initialize SQLite database and seed initial data
+database.init_db()
 
-@app.before_request
-def ensure_session():
-    """Assign a persistent session ID for conversation tracking."""
-    if 'session_id' not in session:
-        session['session_id'] = str(uuid.uuid4())
 
-@app.route('/')
+# -----------------------------------------------------------------------------
+# Frontend Routes
+# -----------------------------------------------------------------------------
+
+@app.route("/")
 def index():
-    """Renders the main single-page web application."""
-    return render_template('index.html')
+    """Render main application."""
+    initial_tab = request.args.get("tab", "home")
+    ai_status = ai_service.get_ai_status()
+    return render_template("index.html", initial_tab=initial_tab, ai_status=ai_status)
 
-@app.route('/<filename>')
-def template_asset(filename):
-    """Serves frontend assets stored alongside the template."""
-    if not filename.lower().endswith(('.css', '.js', '.svg')):
-        abort(404)
-    return send_from_directory(app.template_folder, filename)
 
-@app.route('/api/status', methods=['GET'])
-def get_status():
-    """Returns the backend and AI integration status."""
-    has_api_key = bool(Config.OPENAI_API_KEY and not Config.OPENAI_API_KEY.startswith("your-"))
+@app.route("/chatbot")
+def chatbot_page():
+    """Direct route to the AI Chatbot view."""
+    ai_status = ai_service.get_ai_status()
+    return render_template("index.html", initial_tab="chatbot", ai_status=ai_status)
+
+
+@app.route("/challenges")
+def challenges_page():
+    """Direct route to the Eco-Challenges view."""
+    ai_status = ai_service.get_ai_status()
+    return render_template("index.html", initial_tab="challenges", ai_status=ai_status)
+
+
+@app.route("/tips")
+def tips_page():
+    """Direct route to the Green Tips view."""
+    ai_status = ai_service.get_ai_status()
+    return render_template("index.html", initial_tab="tips", ai_status=ai_status)
+
+
+@app.route("/dashboard")
+def dashboard_page():
+    """Direct route to the Campus Dashboard view."""
+    ai_status = ai_service.get_ai_status()
+    return render_template("index.html", initial_tab="dashboard", ai_status=ai_status)
+
+
+@app.route("/about")
+def about_page():
+    """Direct route to the About view."""
+    ai_status = ai_service.get_ai_status()
+    return render_template("index.html", initial_tab="about", ai_status=ai_status)
+
+
+@app.route("/feedback")
+def feedback_page():
+    """Direct route to the Feedback view."""
+    ai_status = ai_service.get_ai_status()
+    return render_template("index.html", initial_tab="feedback", ai_status=ai_status)
+
+
+# -----------------------------------------------------------------------------
+# API Endpoints
+# -----------------------------------------------------------------------------
+
+@app.route("/api/status", methods=["GET"])
+def api_status():
+    """Check AI integration and system health."""
     return jsonify({
-        "status": "online",
+        "success": True,
         "app_name": "Green Campus Awareness Bot",
         "version": "1.0.0",
-        "ai_provider": "OpenAI" if has_api_key else "Campus Knowledge Engine (Fallback)",
-        "openai_configured": has_api_key,
-        "model": Config.OPENAI_MODEL if has_api_key else "Local Environmental Rule Engine",
-        "database": "SQLite (green_campus.db)"
+        "ai": ai_service.get_ai_status()
     })
 
-@app.route('/api/chat', methods=['POST'])
-def chat():
-    """Handles chatbot conversations and logs interactions."""
-    data = request.get_json() or {}
-    user_message = data.get("message", "").strip()
+
+@app.route("/api/chat", methods=["POST"])
+def api_chat():
+    """
+    Handle chatbot messages.
+    Supports session tracking, conversation history, input validation,
+    and automatic database logging.
+    """
+    data = request.get_json(silent=True) or {}
+    message = data.get("message", "").strip()
+    session_id = data.get("session_id", "default_session").strip() or "default_session"
     history = data.get("history", [])
 
-    if not user_message:
+    if not message:
         return jsonify({
-            "error": "Message is required",
-            "response": "Please type a message to start conversing with EcoBot."
+            "success": False,
+            "error": "Message is required."
         }), 400
 
-    if len(user_message) > 1000:
-        return jsonify({
-            "error": "Message too long (max 1000 characters)"
-        }), 400
-
-    # Call AI service
-    result = generate_chat_response(user_message, history)
-
-    # Log interaction to SQLite
+    # Log user message
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO interactions (session_id, user_message, bot_response, source) VALUES (?, ?, ?, ?)",
-            (session.get('session_id', 'anonymous'), user_message, result.get("response", ""), result.get("source", "ai"))
-        )
-        conn.commit()
-        conn.close()
-    except Exception as db_err:
-        app.logger.error(f"Error logging interaction: {db_err}")
+        database.log_chat_message(session_id, "user", message)
+    except Exception as e:
+        app.logger.warning(f"Failed to log user chat message: {e}")
 
-    return jsonify(result)
+    # Generate response
+    result = ai_service.generate_chat_response(message, history=history)
 
-@app.route('/api/tips', methods=['GET'])
-def get_tips():
-    """Returns categorized environmental tips with optional filtering."""
-    category = request.args.get('category', '').strip()
-    search = request.args.get('search', '').strip()
+    if result.get("success"):
+        bot_response = result.get("response", "")
+        # Log bot message
+        try:
+            database.log_chat_message(session_id, "assistant", bot_response)
+        except Exception as e:
+            app.logger.warning(f"Failed to log assistant chat message: {e}")
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    query = "SELECT * FROM tips WHERE 1=1"
-    params = []
-
-    if category and category.lower() != 'all':
-        query += " AND category = ?"
-        params.append(category)
-
-    if search:
-        query += " AND (title LIKE ? OR content LIKE ?)"
-        params.extend([f"%{search}%", f"%{search}%"])
-
-    query += " ORDER BY id ASC"
-    cursor.execute(query, params)
-    rows = cursor.fetchall()
-
-    # Get distinct categories
-    cursor.execute("SELECT DISTINCT category FROM tips")
-    categories = [row['category'] for row in cursor.fetchall()]
-
-    conn.close()
-
-    tips_list = [dict(row) for row in rows]
-    return jsonify({
-        "tips": tips_list,
-        "count": len(tips_list),
-        "categories": categories
-    })
-
-@app.route('/api/challenges', methods=['GET'])
-def get_challenges():
-    """Returns all eco-challenges, completion status, and user rank score."""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM challenges ORDER BY id ASC")
-    challenges = [dict(row) for row in cursor.fetchall()]
-
-    total_challenges = len(challenges)
-    completed_challenges = sum(1 for c in challenges if c['is_completed'])
-    total_points = sum(c['points'] for c in challenges if c['is_completed'])
-
-    # Determine eco level badge
-    if completed_challenges >= 6:
-        badge = "Green Campus Ambassador 🏆"
-        level = "Eco Legend"
-    elif completed_challenges >= 4:
-        badge = "Campus Guardian 🌿"
-        level = "Eco Champion"
-    elif completed_challenges >= 2:
-        badge = "Green Sprout 🌱"
-        level = "Active Contributor"
+        return jsonify({
+            "success": True,
+            "response": bot_response,
+            "source": result.get("source"),
+            "model": result.get("model", "local_engine"),
+            "note": result.get("note")
+        })
     else:
-        badge = "Eco Seedling 🌰"
-        level = "Beginner"
+        return jsonify({
+            "success": False,
+            "error": result.get("response", "Could not process message.")
+        }), 400
 
-    completion_percentage = int((completed_challenges / total_challenges) * 100) if total_challenges > 0 else 0
 
-    conn.close()
+@app.route("/api/tips", methods=["GET"])
+def api_tips():
+    """Retrieve environmental tips with optional category and search filters."""
+    category = request.args.get("category", "all")
+    search = request.args.get("search", "").strip()
 
+    tips = database.get_all_tips(category=category, search=search)
     return jsonify({
-        "challenges": challenges,
-        "total": total_challenges,
-        "completed": completed_challenges,
-        "total_points": total_points,
-        "completion_percentage": completion_percentage,
-        "badge": badge,
-        "level": level
+        "success": True,
+        "count": len(tips),
+        "tips": tips
     })
 
-@app.route('/api/challenges/complete', methods=['POST'])
-def complete_challenge():
-    """Toggles or sets completion status for a challenge."""
-    data = request.get_json() or {}
-    challenge_id = data.get('challenge_id')
-    status = data.get('completed', True)
+
+@app.route("/api/challenges", methods=["GET"])
+def api_challenges():
+    """Retrieve all campus eco-challenges."""
+    challenges = database.get_all_challenges()
+    return jsonify({
+        "success": True,
+        "count": len(challenges),
+        "challenges": challenges
+    })
+
+
+@app.route("/api/challenges/toggle", methods=["POST"])
+def api_toggle_challenge():
+    """Toggle completion of an eco-challenge."""
+    data = request.get_json(silent=True) or {}
+    challenge_id = data.get("challenge_id")
 
     if not challenge_id:
-        return jsonify({"error": "challenge_id is required"}), 400
+        return jsonify({"success": False, "error": "challenge_id is required"}), 400
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    try:
+        challenge_id = int(challenge_id)
+    except ValueError:
+        return jsonify({"success": False, "error": "Invalid challenge_id"}), 400
 
-    cursor.execute("SELECT * FROM challenges WHERE id = ?", (challenge_id,))
-    challenge = cursor.fetchone()
-
-    if not challenge:
-        conn.close()
-        return jsonify({"error": "Challenge not found"}), 404
-
-    completed_int = 1 if status else 0
-    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") if completed_int else None
-
-    cursor.execute(
-        "UPDATE challenges SET is_completed = ?, completed_at = ? WHERE id = ?",
-        (completed_int, now, challenge_id)
-    )
-
-    # Log into activity logs if marked completed
-    if completed_int:
-        cursor.execute(
-            "INSERT INTO activity_logs (activity_type, title, points_earned, details) VALUES (?, ?, ?, ?)",
-            ("challenge_completed", challenge['title'], challenge['points'], f"Completed eco-challenge: {challenge['title']}")
-        )
-
-    conn.commit()
-    conn.close()
+    updated = database.toggle_challenge(challenge_id)
+    if not updated:
+        return jsonify({"success": False, "error": "Challenge not found"}), 404
 
     return jsonify({
         "success": True,
-        "challenge_id": challenge_id,
-        "is_completed": completed_int,
-        "message": "Challenge progress updated successfully!"
+        "challenge": updated
     })
 
-@app.route('/api/stats', methods=['GET'])
-def get_stats():
-    """Retrieves live dashboard statistics with sample campus metrics."""
-    conn = get_db_connection()
-    cursor = conn.cursor()
 
-    # Tips count
-    cursor.execute("SELECT COUNT(*) FROM tips")
-    tips_count = cursor.fetchone()[0]
+@app.route("/api/activities", methods=["GET", "POST"])
+def api_activities():
+    """Log a new activity (POST) or fetch recent activities (GET)."""
+    if request.method == "POST":
+        data = request.get_json(silent=True) or {}
+        name = data.get("student_name", "").strip() or "Anonymous Student"
+        role = data.get("role", "Student").strip()
+        activity_type = data.get("activity_type", "").strip()
+        description = data.get("description", "").strip()
+        impact_value = data.get("impact_value", "").strip() or "1 Action Completed"
 
-    # Completed challenges
-    cursor.execute("SELECT COUNT(*) FROM challenges WHERE is_completed = 1")
-    completed_challenges = cursor.fetchone()[0]
+        if not activity_type or not description:
+            return jsonify({
+                "success": False,
+                "error": "Activity type and description are required."
+            }), 400
 
-    # Activities recorded
-    cursor.execute("SELECT COUNT(*) FROM activity_logs")
-    activities_count = cursor.fetchone()[0]
-
-    # Total interactions recorded
-    cursor.execute("SELECT COUNT(*) FROM interactions")
-    interactions_count = cursor.fetchone()[0]
-
-    # Total eco points
-    cursor.execute("SELECT SUM(points) FROM challenges WHERE is_completed = 1")
-    earned_points = cursor.fetchone()[0] or 0
-
-    conn.close()
-
-    # Dynamic impact estimations based on recorded activities + baseline demo campus figures
-    plastic_bottles_saved = 1420 + (completed_challenges * 25)
-    water_saved_liters = 5800 + (completed_challenges * 120)
-    energy_saved_kwh = 340 + (completed_challenges * 8)
-    co2_reduced_kg = 210 + (completed_challenges * 5)
-
-    return jsonify({
-        "tips_count": tips_count,
-        "completed_challenges": completed_challenges,
-        "activities_count": activities_count,
-        "interactions_count": interactions_count,
-        "eco_points": earned_points,
-        "plastic_bottles_saved": plastic_bottles_saved,
-        "water_saved_liters": water_saved_liters,
-        "energy_saved_kwh": energy_saved_kwh,
-        "co2_reduced_kg": co2_reduced_kg,
-        "disclaimer": "Sample statistics are demonstrations for college awareness and not real-time campus sensors."
-    })
-
-@app.route('/api/feedback', methods=['GET', 'POST'])
-def handle_feedback():
-    """Handles feedback submission and retrieves recent user reviews."""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    if request.method == 'POST':
-        data = request.get_json() or {}
-        user_name = data.get('user_name', 'Anonymous Student').strip() or 'Anonymous Student'
-        user_role = data.get('user_role', 'Student').strip() or 'Student'
-        rating = data.get('rating')
-        category = data.get('category', 'General').strip() or 'General'
-        comment = data.get('comment', '').strip()
-
-        if not rating or not (1 <= int(rating) <= 5):
-            conn.close()
-            return jsonify({"error": "Please provide a valid rating between 1 and 5"}), 400
-
-        if not comment:
-            conn.close()
-            return jsonify({"error": "Comment cannot be empty"}), 400
-
-        cursor.execute(
-            "INSERT INTO feedback (user_name, user_role, rating, category, comment) VALUES (?, ?, ?, ?, ?)",
-            (user_name, user_role, int(rating), category, comment)
-        )
-        conn.commit()
-
-        # Log as campus feedback activity
-        cursor.execute(
-            "INSERT INTO activity_logs (activity_type, title, points_earned, details) VALUES (?, ?, ?, ?)",
-            ("feedback_submitted", f"Feedback from {user_name} ({user_role})", 10, f"Rated {rating} stars: {category}")
-        )
-        conn.commit()
-
-        conn.close()
+        record = database.add_activity(name, role, activity_type, description, impact_value)
         return jsonify({
             "success": True,
-            "message": "Thank you for your valuable feedback! Your input helps keep our campus green."
+            "message": "Eco-activity successfully recorded! Thank you for helping keep campus green 🌿",
+            "activity": record
         }), 201
 
-    # GET: return latest 8 feedbacks
-    cursor.execute("SELECT * FROM feedback ORDER BY id DESC LIMIT 8")
-    feedbacks = [dict(row) for row in cursor.fetchall()]
-
-    cursor.execute("SELECT AVG(rating), COUNT(*) FROM feedback")
-    stats = cursor.fetchone()
-    avg_rating = round(stats[0], 1) if stats[0] else 5.0
-    total_feedback = stats[1]
-
-    conn.close()
+    # GET
+    limit = request.args.get("limit", 15, type=int)
+    activities = database.get_recent_activities(limit=limit)
     return jsonify({
-        "feedbacks": feedbacks,
-        "average_rating": avg_rating,
-        "total_count": total_feedback
+        "success": True,
+        "count": len(activities),
+        "activities": activities
     })
 
-@app.route('/api/activities', methods=['GET'])
-def get_activities():
-    """Returns recent campus eco-activities log."""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM activity_logs ORDER BY id DESC LIMIT 10")
-    activities = [dict(row) for row in cursor.fetchall()]
-    conn.close()
-    return jsonify({"activities": activities})
 
-if __name__ == '__main__':
-    print(f"Starting Green Campus Awareness Bot on port {Config.PORT}...")
-    app.run(host='0.0.0.0', port=Config.PORT, debug=Config.DEBUG)
+@app.route("/api/feedback", methods=["GET", "POST"])
+def api_feedback():
+    """Submit user feedback (POST) or fetch community reviews (GET)."""
+    if request.method == "POST":
+        data = request.get_json(silent=True) or {}
+        user_name = data.get("user_name", "").strip() or "Campus Member"
+        role = data.get("role", "Student").strip()
+        category = data.get("category", "General Suggestion").strip()
+        message = data.get("message", "").strip()
+        rating = data.get("rating", 5)
+
+        try:
+            rating = int(rating)
+            if rating < 1 or rating > 5:
+                rating = 5
+        except (ValueError, TypeError):
+            rating = 5
+
+        if not message:
+            return jsonify({
+                "success": False,
+                "error": "Feedback message cannot be empty."
+            }), 400
+
+        record = database.add_feedback(user_name, role, rating, category, message)
+        return jsonify({
+            "success": True,
+            "message": "Thank you! Your feedback helps us improve campus green initiatives 🌿",
+            "feedback": record
+        }), 201
+
+    # GET
+    limit = request.args.get("limit", 15, type=int)
+    feedback_data = database.get_all_feedback(limit=limit)
+    return jsonify({
+        "success": True,
+        "data": feedback_data
+    })
+
+
+@app.route("/api/dashboard/stats", methods=["GET"])
+def api_dashboard_stats():
+    """Retrieve aggregated metrics and demonstration impact data."""
+    stats = database.get_dashboard_stats()
+    return jsonify({
+        "success": True,
+        "stats": stats
+    })
+
+
+# -----------------------------------------------------------------------------
+# Main Application Entry Point
+# -----------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    port = int(os.getenv("FLASK_PORT", 5000))
+    debug = os.getenv("FLASK_DEBUG", "True").lower() in ("true", "1", "yes")
+    print(f"[*] Green Campus Awareness Bot starting on http://127.0.0.1:{port}")
+    app.run(host="127.0.0.1", port=port, debug=debug)
