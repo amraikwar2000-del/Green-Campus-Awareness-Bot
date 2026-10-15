@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask, abort, render_template, request, jsonify, send_from_directory, session
 import uuid
 import datetime
 from config import Config
@@ -22,6 +22,13 @@ def ensure_session():
 def index():
     """Renders the main single-page web application."""
     return render_template('index.html')
+
+@app.route('/<filename>')
+def template_asset(filename):
+    """Serves frontend assets stored alongside the template."""
+    if not filename.lower().endswith(('.css', '.js', '.svg')):
+        abort(404)
+    return send_from_directory(app.template_folder, filename)
 
 @app.route('/api/status', methods=['GET'])
 def get_status():

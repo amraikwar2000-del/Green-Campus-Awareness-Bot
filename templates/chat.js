@@ -204,7 +204,7 @@ const ChatController = (() => {
     row.className = 'message-row bot-message';
     row.innerHTML = `
       <div class="msg-avatar" title="EcoBot">
-        <img src="/static/img/ecobot_avatar.svg" alt="EcoBot Avatar">
+        <img src="ecobot_avatar.svg" alt="EcoBot Avatar">
       </div>
       <div class="message-bubble">
         ${formattedHtml}
